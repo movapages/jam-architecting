@@ -5,12 +5,14 @@
 
 #### 2. Event Booking System Overview
 
-The overall flowchart of main processes to be implemented looks as followin (see the diagram below):
+The overall flowchart of main processes to be implemented with the application looks as following (see the diagram below):
 
 ![Process List](Event%20Booking%20System%20Structure%20Flowchart.png)
 
 
 #### 3. DBs & Data Models
+
+Redis DB interconnectivity fits in Next.js capabilities with the mediation of [redis](https://www.npmjs.com/package/redis) package. However, it may be useful even with Redis to implement kind of caching mechanism, if the need arises.
 
 ##### ___Redis DB Basic structure___
 
@@ -74,7 +76,7 @@ SMEMBERS event_bookings:123
 
 ![User Authentication](Container_web_user_authentication.png)
 
-> <small><strong>NB:</strong> Mobile first design implementation should adhere to well-known best practices - one-column layout, etc. Check the _login_ form sample below.</small>
+> <small><strong>NB:</strong> Mobile first design implementation should adhere to well-known best practices - one-column layout built on top of media queries, etc. Check the _login_ form sample below.</small>
 
 ![Mobile-first](Container_login_register.png)
 
