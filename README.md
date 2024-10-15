@@ -99,6 +99,18 @@ SMEMBERS event_bookings:123
 ![Event Create](EventTrack%20-%20Event%20Create.png)
 
 
+6. <ins>Admin Panel</ins>
+
+Admin panel should employ the same framework of React components shared with User UI, namely: dashboard and single event view.
+Plus, one more state to list all registered users (read-only mode).
+For this it may suffice to widen the dashboard component API to enable it listing different data sets by means of extra configuration object.
+
+It may happen the customer will require a hardened access control to the panel and resources pertained to it,
+and separate (physically) this resource from common userland; it means this part may be hosted/deployed on a different domain/host, and 
+reside in a separate repository, etc.
+
+To make all sharable parts available for both applications and keep them in sync in the process of constant development, we may consider use of Nx monorepo...
+
 
 #### 5. JAM-Stack PoC: Next-Auth + Sanity CMS
 
