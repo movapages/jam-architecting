@@ -64,7 +64,7 @@ All these parts are connected as below:
 The data models for Sanity DB are *generated* with Sanity Studio: check the [RBAC sample](https://github.com/movapages/mini-login/blob/main/sanity-studio/schemaTypes/rbac.ts)
 and [faked user data](https://github.com/movapages/mini-login/blob/main/faked-data/user-list.json) (JSON format). 
 
-All EBS users are authenticated against the DB. Check N[ext+React application repo](https://github.com/movapages/mini-login) for the stack.
+All EBS users are authenticated against the DB. Check [Next+React application repo](https://github.com/movapages/mini-login) for the stack.
 
 ##### ___Redis DB Basic structure___
 
@@ -169,9 +169,159 @@ To make all sharable parts available for both applications and keep them in sync
 
 #### 5. JAM-Stack PoC: Next-Auth + Sanity CMS
 
-Please, check the PoC repository and demo pages.
+Please, check the [PoC repository](https://github.com/movapages/mini-login), where `package.json` file lists all
+NPMs required along with its demo pages.
 
 
-#### 6. Deliverables & CI/CD
+#### 6. Deliverables & Deployment
 
-TBD
+For the convenience's sake it is advised to put the whole system into Docker container, which makes possible the development
+process as well as maintenance to be carried out separately, and update the production-ready container as frequently as needed.
+
+However, in the event the EBS will require some scaling in the future, the orchestration option should be kept in mind.
+It means that the deployment process may require somewhat different containerization schema, where every integral part
+will have its own, separate docker container.
+
+
+1. <ins>Admin Panel & EBS Web Application</ins>
+
+The JAM-Stack EBS application, its client-side, which exists as git repo, should reside within Docker space on the
+developer's OS file system. Doing this way the developer may freely keep working on the application, and, on the other hand,
+the application may be bundled and containerized whenever required.
+
+The container(s) having DB servers installed may be used as a part of local developer's environment.
+
+2. <ins>*nix Server Environment</ins>
+
+A basic docker container setup starts with `docker-compose.yml` (example):
+
+````
+version: '3.8'
+
+services:
+  # Sanity Studio (Database and CMS management)
+  sanity:
+    build: ./sanity
+    container_name: sanity
+    ports:
+      - '3333:3333' # Sanity studio port
+    environment:
+      SANITY_CLI_VERSION: '@sanity/cli@latest'
+      PROJECT_ID: ${SANITY_PROJECT_ID}
+    volumes:
+      - ./sanity:/app
+    depends_on:
+      - redis
+
+  # Redis
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - '6379:6379' # Redis port
+    volumes:
+      - redis-data:/data
+
+  # Next.js with SSR
+  nextjs:
+    build: ./next
+    container_name: nextjs
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ${SANITY_PROJECT_ID}
+      NEXT_PUBLIC_REDIS_HOST: redis
+      NEXT_PUBLIC_REDIS_PORT: 6379
+    volumes:
+      - ./next:/app
+    depends_on:
+      - redis
+      - sanity
+
+  # Nginx as a reverse proxy
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - '80:80' # Public access to the app
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - nextjs
+
+volumes:
+  redis-data:
+    driver: local
+
+````
+YML file _mentions_ `nginx.conf`, where nextjs server requires extra configuration (example):
+
+````
+server {
+    listen 80;
+
+    server_name localhost;
+
+    location / {
+        proxy_pass http://nextjs:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+````
+
+To enable SSR for Next.js, there should be a separate `Dockerfile` (example):
+
+````
+# Base image
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json yarn.lock ./
+RUN yarn install
+
+# Copy source code
+COPY . .
+
+# Build the Next.js app
+RUN yarn build
+
+# Expose the port
+EXPOSE 3000
+
+# Start the app
+CMD ["yarn", "start"]
+
+````
+
+To manage content under Sanity Studio with `@sanity/cli` another `Dockerfile` fragment should be added (example):
+
+````
+# Base image
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install Sanity CLI and other dependencies
+RUN npm install -g @sanity/cli
+
+# Copy Sanity project
+COPY . .
+
+# Start Sanity Studio
+CMD ["sanity", "start"]
+
+````
+
+Finally, basic `.env` file should contain all required creds: 
+
+````
+SANITY_PROJECT_ID=your-sanity-project-id
+````
+
+This fully containerized environment is capable of hosting the EBS.
