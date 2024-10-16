@@ -59,14 +59,18 @@ All these parts are connected as below:
 
 #### 3. DBs & Data Models
 
-##### ___RBAC DB (Sanity CMS)___
+##### ___RBAC DB of Sanity CMS___
 
 The data models for Sanity DB are *generated* with Sanity Studio: check the [RBAC sample](https://github.com/movapages/mini-login/blob/main/sanity-studio/schemaTypes/rbac.ts)
 and [faked user data](https://github.com/movapages/mini-login/blob/main/faked-data/user-list.json) (JSON format). 
 
+All EBS users are authenticated against the DB. Check N[ext+React application repo](https://github.com/movapages/mini-login) for the stack.
+
 ##### ___Redis DB Basic structure___
 
 Redis DB interconnectivity fits in Next.js capabilities with the mediation of [redis](https://www.npmjs.com/package/redis) package. However, it may be useful even with Redis to implement kind of caching mechanism, if the need arises.
+
+The EBS DB storage:
 
 ````
  +-------------------------------+        +-------------------------------+
