@@ -3,19 +3,70 @@
 
 #### 1. Objectives
 
+To assess JAM-stack development basics: planning, design, prototyping and implementation as a complex workout.
+
+This repository provides a concise description of an imaginary _Event Booking System_ (EBS), introducing possible solutions
+for implementing the said EBS, plus, has references to another github repository with some basic Next.js (React.js) application,
+which may serve as scaffolding for a full-fledged web-application backed-up with _Sanity CMS_.
+
 #### 2. Event Booking System Overview
 
-The overall flowchart of main processes to be implemented with the application looks as following (see the diagram below):
+
+
+The overall flowchart of EBS processes to be implemented with the application looks as following (see the diagram below):
 
 ![Process List](Event%20Booking%20System%20Structure%20Flowchart.png)
 
+This particular EBS should consists of:
+
+1. Role-based Access Control system built on top of Sanity CMS
+2. Redis DB instance should keep users' event records
+3. Browser-based application should provide users to their bookings 
+ 
+All these parts are connected as below:
+
+````
++---------------------+        +---------------------+    
+|    Sanity CMS       | -----> |  Role-based Access  | <--+
+| (Content Management)|        |     Control (RBAC)  |    |
++---------------------+        +---------------------+    |   
+                                      |                   |
+                                      |                   |
+                              +------------------+        |
+                              |   Redis DB       | <------+    
+                              | (Event Records)  |        |    
+                              +------------------+        |    
+                                                      +---------------------+    
+                                                      | User Authentication |    
+                                                      | (JWT, Next-Auth via |    
+                                                      |    Browser App)     |    
+                                                      +---------------------+    
+                                                            ^      |   
+                                                            |      v  
+                                              +--------------------------------------+
+                                              |       Browser App (Next + React)     |
+                                              |  (User Auth + Bookings Management)   |
+                                              +--------------------------------------+
+                                                      |
+                                                      v
+                                         +----------------------+
+                                         |      Admin Panel     |
+                                         |   (Users, Events)    |
+                                         +----------------------+
+
+
+````
 
 #### 3. DBs & Data Models
 
-Redis DB interconnectivity fits in Next.js capabilities with the mediation of [redis](https://www.npmjs.com/package/redis) package. However, it may be useful even with Redis to implement kind of caching mechanism, if the need arises.
+##### ___RBAC DB (Sanity CMS)___
+
+The data models for Sanity DB are *generated* with Sanity Studio: check the [RBAC sample](https://github.com/movapages/mini-login/blob/main/sanity-studio/schemaTypes/rbac.ts)
+and [faked user data](https://github.com/movapages/mini-login/blob/main/faked-data/user-list.json) (JSON format). 
 
 ##### ___Redis DB Basic structure___
 
+Redis DB interconnectivity fits in Next.js capabilities with the mediation of [redis](https://www.npmjs.com/package/redis) package. However, it may be useful even with Redis to implement kind of caching mechanism, if the need arises.
 
 ````
  +-------------------------------+        +-------------------------------+
