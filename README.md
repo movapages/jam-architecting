@@ -64,7 +64,8 @@ All these parts are connected as below:
 The data models for Sanity DB are *generated* with Sanity Studio: check the [RBAC sample](https://github.com/movapages/mini-login/blob/main/sanity-studio/schemaTypes/rbac.ts)
 and [faked user data](https://github.com/movapages/mini-login/blob/main/faked-data/user-list.json) (JSON format). 
 
-All EBS users are authenticated against the DB. Check [Next+React application repo](https://github.com/movapages/mini-login) for the stack.
+All EBS users are authenticated against the DB. Check [Next+React application repo](https://github.com/movapages/mini-login) 
+for the project folder and file structure, etc.
 
 ##### ___Redis DB Basic structure___
 
